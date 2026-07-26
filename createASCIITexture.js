@@ -1,0 +1,32 @@
+import * as THREE from 'three'
+import { CanvasTexture } from "three";
+
+const CHAR_LIST = [
+    ' ', '`', '.', '-', "'", ':', '_', ',', '^', '=', ';', '>', '<', '+', '!', 'r', 'c', '*', '/', 'z', '?', 's', 'L', 'T', 'v', ')', 'J', '7', '(', '|', 'F', 'i', '{', 'C', '}', 'f', 'I', '3', '1', 't', 'l', 'u', '[', 'n', 'e', 'o', 'Z', '5', 'Y', 'x', 'j', 'y', 'a', ']', '2', 'E', 'S', 'w', 'q', 'k', 'P', '6', 'h', '9', 'd', '4', 'V', 'p', 'O', 'G', 'b', 'U', 'A', 'K', 'X', 'H', 'm', '8', 'R', 'D', '#', '$', 'B', 'g', '0', 'M', 'N', 'W', 'Q', '%', '&', '@']
+
+const CHAR_COUNT = CHAR_LIST.length
+
+const canvas = document.querySelector("#asciiTexture");
+const ctx = canvas.getContext('2d')
+
+export const paintASCIITexture = (width=0, height=0, cellSize = 8, fontSize = 8) => {
+    canvas.height = height
+    canvas.width = width
+    ctx.fillStyle = '#000'
+    ctx.fillRect(0, 0, width, height)
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillStyle = '#fff'
+    ctx.font = `${fontSize}px arial`
+    CHAR_LIST.forEach((char, idx) => {
+        ctx.fillText(char, idx * cellSize + cellSize / 2, cellSize / 2)
+    })
+
+    const texture = new CanvasTexture(canvas)
+    texture.minFilter = THREE.NearestFilter;
+    texture.magFilter = THREE.NearestFilter;
+    texture.needsUpdate = true
+    texture.flipY = true;
+    return { texture, count: CHAR_COUNT, cellSize, fontSize };
+}
+
