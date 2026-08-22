@@ -7,8 +7,8 @@ import { GUI } from 'lil-gui'
 import { paintASCIITexture } from './createASCIITexture';
 
 const TEXTURE_DATA = {
-  FONT_SIZE: 100,
-  CELL_SIZE: 100
+  FONT_SIZE: 8,
+  CELL_SIZE: 8
 }
 
 let ASCII_TEXTURE_DATA = paintASCIITexture(window.innerWidth, window.innerHeight, TEXTURE_DATA.CELL_SIZE, TEXTURE_DATA.FONT_SIZE)
@@ -57,7 +57,7 @@ const ASCII_SHADER = new THREE.ShaderMaterial({
 
       // in px
       float xPos = insideCellOffset.x  + (characterIndex * u_cellSize.x);
-      float yPos = insideCellOffset.y;
+      float yPos = (uResolution.y - u_cellSize.y) + insideCellOffset.y;;
 
       float spaceXPos = xPos/uResolution.x;
       float spaceYPos = yPos/uResolution.y;
@@ -65,7 +65,7 @@ const ASCII_SHADER = new THREE.ShaderMaterial({
       vec2 charUV = vec2(spaceXPos, spaceYPos); //position of the pixel in asciiimage to be painted in the output
       vec4 asciiCharacter = texture(asciiImage, charUV);
 
-      gl_FragColor = vec4(pixelized.rgb * asciiCharacter.r, 1.0);
+      gl_FragColor = asciiCharacter;
     }
   `
 })
