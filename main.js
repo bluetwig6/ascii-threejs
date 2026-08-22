@@ -1,17 +1,19 @@
 import * as THREE from 'three';
 import Stats from 'stats.js';
-import { ASCIIEffect, EffectComposer, RenderPass, EffectPass, ShaderPass } from 'postprocessing'
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { GUI } from 'lil-gui'
 import { paintASCIITexture } from './createASCIITexture';
 
 const TEXTURE_DATA = {
-  FONT_SIZE: 8,
-  CELL_SIZE: 8
+  FONT_SIZE: 100,
+  CELL_SIZE: 100
 }
 
 let ASCII_TEXTURE_DATA = paintASCIITexture(window.innerWidth, window.innerHeight, TEXTURE_DATA.CELL_SIZE, TEXTURE_DATA.FONT_SIZE)
 
-const ASCII_SHADER = {
+const ASCII_SHADER = new THREE.ShaderMaterial({
   uniforms: {
     'videoFrame': { value: null },
     'asciiImage': { value: ASCII_TEXTURE_DATA.texture },
@@ -66,7 +68,7 @@ const ASCII_SHADER = {
       gl_FragColor = vec4(pixelized.rgb * asciiCharacter.r, 1.0);
     }
   `
-}
+})
 
 const cellGui = new GUI();
 cellGui.add(TEXTURE_DATA, 'FONT_SIZE', 0, 100, 2).onChange(value => {
