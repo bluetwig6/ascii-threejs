@@ -9,14 +9,16 @@ const CHAR_COUNT = CHAR_LIST.length
 const canvas = document.querySelector("#asciiTexture");
 const ctx = canvas.getContext('2d')
 
-export const paintASCIITexture = (width=0, height=0, cellSize = 8, fontSize = 8) => {
+
+
+export const paintASCIITexture = (width=0, height=0, cellSize = 8, fontSize = 8, textColor = "#FFFFFF") => {
     canvas.height = height
     canvas.width = width
     ctx.fillStyle = '#000'
     ctx.fillRect(0, 0, width, height)
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.fillStyle = '#fff'
+    ctx.fillStyle = textColor
     ctx.font = `${fontSize}px arial`
     CHAR_LIST.forEach((char, idx) => {
         ctx.fillText(char, idx * cellSize + cellSize / 2, cellSize / 2)
@@ -30,3 +32,28 @@ export const paintASCIITexture = (width=0, height=0, cellSize = 8, fontSize = 8)
     return { texture, count: CHAR_COUNT, cellSize, fontSize };
 }
 
+export const paintASCIILineTexture = (width=0, height=0, cellSize = 8, steps = 8, angle=0, textColor = "#FFFFFF") => {
+    canvas.height = height
+    canvas.width = width
+    ctx.fillStyle = '#000'
+    ctx.fillRect(0, 0, width, height)
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.strokeStyle = textColor
+    const angleInRadians = angle * (Math.PI / 180); 
+    for (let index = 0; index < steps; index++) {
+        const center = [index * cellSize + cellSize / 2, cellSize / 2]
+        const start = [center[0] - ((index/steps) * cellSize/2 * Math.cos(angleInRadians)), center[1] - (((index/steps) * cellSize/2) * Math.sin(angleInRadians))]
+        const end = [center[0] + ((index/steps) * cellSize/2 * Math.cos(angleInRadians)), center[1] + (((index/steps) * cellSize/2) * Math.sin(angleInRadians))]
+        ctx.moveTo(start[0], start[1]) 
+        ctx.lineTo(end[0], end[1])
+        ctx.stroke();
+    }
+
+    const texture = new CanvasTexture(canvas)
+    texture.minFilter = THREE.NearestFilter;
+    texture.magFilter = THREE.NearestFilter;
+    texture.needsUpdate = true
+    texture.flipY = true;
+    return { texture, count: steps, cellSize };
+}
