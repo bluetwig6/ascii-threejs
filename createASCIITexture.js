@@ -19,7 +19,7 @@ export const paintASCIITexture = (width=0, height=0, cellSize = 8, fontSize = 8,
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillStyle = textColor
-    ctx.font = `${fontSize}px arial`
+    ctx.font = `bold ${fontSize}px Courier`
     CHAR_LIST.forEach((char, idx) => {
         ctx.fillText(char, idx * cellSize + cellSize / 2, cellSize / 2)
     })
@@ -29,7 +29,7 @@ export const paintASCIITexture = (width=0, height=0, cellSize = 8, fontSize = 8,
     texture.magFilter = THREE.NearestFilter;
     texture.needsUpdate = true
     texture.flipY = true;
-    return { texture, count: CHAR_COUNT, cellSize, fontSize };
+    return { texture, count: CHAR_COUNT, cellSize };
 }
 
 export const paintASCIILineTexture = (width=0, height=0, cellSize = 8, steps = 8, angle=0, textColor = "#FFFFFF") => {
@@ -56,4 +56,12 @@ export const paintASCIILineTexture = (width=0, height=0, cellSize = 8, steps = 8
     texture.needsUpdate = true
     texture.flipY = true;
     return { texture, count: steps, cellSize };
+}
+
+export const updateASCIITexture = (TEXT_TEXTURE_DATA, SHAPE_TEXTURE_DATA, COLOR_DATA, TEXTURE_SELECT) => {
+    if (TEXTURE_SELECT.MODE === "TEXT") {
+        return paintASCIITexture(window.innerWidth, window.innerHeight, TEXT_TEXTURE_DATA.CELL_SIZE, TEXT_TEXTURE_DATA.FONT_SIZE, COLOR_DATA.COLOR)
+    } else if (TEXTURE_SELECT.MODE === 'SHAPE') {
+        return paintASCIILineTexture(window.innerWidth, window.innerHeight, SHAPE_TEXTURE_DATA.CELL_SIZE, SHAPE_TEXTURE_DATA.STEPS, SHAPE_TEXTURE_DATA.ANGLE, COLOR_DATA.COLOR)
+    }
 }
