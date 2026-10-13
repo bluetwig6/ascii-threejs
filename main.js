@@ -146,7 +146,6 @@ function resizeVideoPlane(camera, plane, videoWidth, videoHeight) {
     scaleX = visibleHeight * videoAspect;
     scaleY = visibleHeight;
   }
-
   plane.scale.set(scaleX, scaleY, 1);
 }
 
@@ -158,7 +157,7 @@ function handleResize() {
   composer.setSize(width, height);
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
-
+  refreshTextureAndShader()
   if (video.videoWidth > 0) {
     resizeVideoPlane(camera, plane, video.videoWidth, video.videoHeight);
   }

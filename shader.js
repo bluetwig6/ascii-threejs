@@ -81,6 +81,7 @@ const updateShader = (ASCII_SHADER, TEXTURE_DATA, COLOR_DATA ) => {
         TEXTURE_DATA.cellSize,
         TEXTURE_DATA.cellSize
     );
+    ASCII_SHADER.uniforms.uResolution.value = new THREE.Vector2(window.innerWidth, window.innerHeight)
     ASCII_SHADER.uniforms.u_charCount.value = TEXTURE_DATA.count;
     ASCII_SHADER.uniforms.u_use_video_color_for_foreground.value = COLOR_DATA.PICK_CHAR_COLOR_FROM_VIDEO
     ASCII_SHADER.uniforms.u_PICK_BG_COLOR_FROM_VIDEO.value = COLOR_DATA.PICK_BG_COLOR_FROM_VIDEO;
