@@ -33,7 +33,7 @@ button {
     bottom: 0px;
     color: white;
     padding: 90px;
-    transition: all 500ms;
+    transition: bottom 500ms;
     z-index: 99;
 }
 
