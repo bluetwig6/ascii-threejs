@@ -1,0 +1,94 @@
+html,
+body {
+    font-family: "IBM Plex Mono", monospace;
+    margin: 0;
+    height: 100%;
+    letter-spacing: 0.15rem;
+}
+
+button {
+    padding: 0px;
+    display: block;
+    border: none;
+    background: none;
+    color: white;
+    letter-spacing: 0.15rem;
+    font-size: inherit;
+    font-size: 12px;
+}
+
+#c,
+#asciiTexture {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+#asciiTexture {
+    display: none;
+}
+
+#videoControls {
+    position: fixed;
+    bottom: 0px;
+    color: white;
+    padding: 90px;
+    transition: all 500ms;
+    z-index: 99;
+}
+
+#videoControls.hide {
+    bottom: -600px;
+}
+
+.videoControls-innerWrapper {
+    display: grid;
+    gap: 8px;
+    background: black;
+    border: 1px solid white;
+    padding: 20px;
+}
+
+#pause-button {
+    cursor: pointer;
+}
+
+#fileInputLabel {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    margin-bottom: 16px;
+}
+
+#fileInput {
+    max-width: 200px;
+    opacity: 0;
+    height: 1px;
+}
+
+#videoControls #preview {
+    width: 100%;
+}
+
+#videoControls #preview p {
+    margin-block: 0px;
+}
+
+#hide-video-controls,
+#show-video-controls {
+    letter-spacing: 0.15rem;
+    display: inline-block;
+    margin-right: auto;
+    cursor: pointer;
+}
+
+#show-video-controls {
+    position: fixed;
+    bottom: 10px;
+    margin-left: 90px;
+    transition: all 500ms;
+}
+
+#show-video-controls.hide{
+    bottom: -100px;
+}
