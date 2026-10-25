@@ -43,6 +43,20 @@ const refreshTextureAndShader = () => {
   updateShader(ASCII_SHADER, newTextureData, COLOR_DATA)
 }
 
+
+// LOAD font for HTML canvas
+ const font = new FontFace("Inter", 'url("./fonts/Inter-VariableFont_opsz,wght.ttf")', {
+    style: "normal",
+    weight: "400",
+    stretch: "condensed",
+  });
+  font.load().then((font) => {
+    console.log(font)
+    document.fonts.add(font)
+    updateASCIITexture(TEXT_TEXTURE_DATA, SHAPE_TEXTURE_DATA, COLOR_DATA, TEXTURE_SELECT, OUTLINE_DATA.ENABLED, OUTLINE_DATA.WIDTH)
+    updateShader(ASCII_SHADER, newTextureData, COLOR_DATA)
+  });
+
 // CONTROLS UI
 const controlsGUI = new GUI();
 const textureMode = controlsGUI.addFolder('TEXTURE MODE')

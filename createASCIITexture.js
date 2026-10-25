@@ -9,19 +9,6 @@ const CHAR_COUNT = CHAR_LIST.length
 const canvas = document.querySelector("#asciiTexture");
 const ctx = canvas.getContext('2d')
 
-
- const font = new FontFace("Inter", 'url("./fonts/Inter-VariableFont_opsz,wght.ttf")', {
-    style: "normal",
-    weight: "400",
-    stretch: "condensed",
-  });
-  // wait for font to be loaded
-  font.load().then((font) => {
-    console.log(font)
-    document.fonts.add(font)
-  });
-
-
 export const paintASCIITexture = (width = 0, height = 0, cellSize = 8, fontSize = 8, textColor = "#FFFFFF", drawOutline = true, outlineWidth = 5) => {
     canvas.height = height
     canvas.width = width
