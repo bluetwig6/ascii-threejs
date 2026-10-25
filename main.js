@@ -13,6 +13,11 @@ let TEXTURE_SELECT = {
   MODE: "TEXT"
 }
 
+let OUTLINE_DATA = {
+  ENABLED: true,
+  WIDTH: 5
+}
+
 let SHAPE_TEXTURE_DATA = {
   STEPS: 20,
   CELL_SIZE: 12,
@@ -31,10 +36,10 @@ let COLOR_DATA = {
 }
 
 // ASCII TEXTURE AND SHADER STUFF
-let ASCII_TEXTURE_DATA = paintASCIITexture(window.innerWidth, window.innerHeight, TEXT_TEXTURE_DATA.CELL_SIZE, TEXT_TEXTURE_DATA.FONT_SIZE, COLOR_DATA.COLOR)
+let ASCII_TEXTURE_DATA = paintASCIITexture(window.innerWidth, window.innerHeight, TEXT_TEXTURE_DATA.CELL_SIZE, TEXT_TEXTURE_DATA.FONT_SIZE, COLOR_DATA.COLOR, OUTLINE_DATA.ENABLED, OUTLINE_DATA.WIDTH)
 const ASCII_SHADER = createASCIIShader(ASCII_TEXTURE_DATA, COLOR_DATA)
 const refreshTextureAndShader = () => {
-  const newTextureData = updateASCIITexture(TEXT_TEXTURE_DATA, SHAPE_TEXTURE_DATA, COLOR_DATA, TEXTURE_SELECT)
+  const newTextureData = updateASCIITexture(TEXT_TEXTURE_DATA, SHAPE_TEXTURE_DATA, COLOR_DATA, TEXTURE_SELECT, OUTLINE_DATA.ENABLED, OUTLINE_DATA.WIDTH)
   updateShader(ASCII_SHADER, newTextureData, COLOR_DATA)
 }
 
@@ -44,6 +49,7 @@ const textureMode = controlsGUI.addFolder('TEXTURE MODE')
 const textFolder = controlsGUI.addFolder('TEXT');
 const shapeFolder = controlsGUI.addFolder('SHAPE')
 const colorFolder = controlsGUI.addFolder('COLOR')
+const outlineFolder = controlsGUI.addFolder('OUTLINE')
 
 textFolder.add(TEXT_TEXTURE_DATA, 'FONT_SIZE', 1, 100, 1).onChange(value => {
   refreshTextureAndShader()
@@ -98,6 +104,14 @@ colorFolder.add(COLOR_DATA, 'PICK_BG_COLOR_FROM_VIDEO').onChange(value => {
   } else {
     colorController.enable()
   }
+})
+
+outlineFolder.add(OUTLINE_DATA, 'ENABLED').onChange(value => {
+  refreshTextureAndShader()
+})
+
+outlineFolder.add(OUTLINE_DATA, 'WIDTH', 1,20,0.5).onChange(value => {
+  refreshTextureAndShader()
 })
 
 const reset_parameters = () => {
@@ -191,7 +205,7 @@ showButton.addEventListener('click', () => {
 
 
 pauseButton.addEventListener('click', () => {
-  if(video.paused) {
+  if (video.paused) {
     pauseButton.innerHTML = 'PAUSE'
     renderer.setAnimationLoop(animate)
     video.play()
