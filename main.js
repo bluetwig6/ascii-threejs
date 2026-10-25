@@ -58,7 +58,7 @@ const refreshTextureAndShader = () => {
   });
 
 // CONTROLS UI
-const controlsGUI = new GUI();
+const controlsGUI = new GUI({width: 500});
 const textureMode = controlsGUI.addFolder('TEXTURE MODE')
 const textFolder = controlsGUI.addFolder('TEXT');
 const shapeFolder = controlsGUI.addFolder('SHAPE')
@@ -137,7 +137,7 @@ const video = document.getElementById('video');
 
 function setupVideo(url = "./video.mp4") {
   video.src = url
-  video.play();
+  // video.play();
   return video;
 }
 
