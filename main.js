@@ -35,12 +35,16 @@ let COLOR_DATA = {
   PICK_BG_COLOR_FROM_VIDEO: false
 }
 
+let INVERT_DATA = {
+  ENABLED: false
+}
+
 // ASCII TEXTURE AND SHADER STUFF
-let ASCII_TEXTURE_DATA = paintASCIITexture(window.innerWidth, window.innerHeight, TEXT_TEXTURE_DATA.CELL_SIZE, TEXT_TEXTURE_DATA.FONT_SIZE, COLOR_DATA.COLOR, OUTLINE_DATA.ENABLED, OUTLINE_DATA.WIDTH)
-const ASCII_SHADER = createASCIIShader(ASCII_TEXTURE_DATA, COLOR_DATA)
+let ASCII_TEXTURE_DATA = paintASCIITexture(window.innerWidth, window.innerHeight, TEXT_TEXTURE_DATA.CELL_SIZE, TEXT_TEXTURE_DATA.FONT_SIZE, COLOR_DATA.COLOR, OUTLINE_DATA.ENABLED, OUTLINE_DATA.WIDTH, INVERT_DATA.ENABLED)
+const ASCII_SHADER = createASCIIShader(ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA)
 const refreshTextureAndShader = () => {
-  const newTextureData = updateASCIITexture(TEXT_TEXTURE_DATA, SHAPE_TEXTURE_DATA, COLOR_DATA, TEXTURE_SELECT, OUTLINE_DATA.ENABLED, OUTLINE_DATA.WIDTH)
-  updateShader(ASCII_SHADER, newTextureData, COLOR_DATA)
+  const newTextureData = updateASCIITexture(TEXT_TEXTURE_DATA, SHAPE_TEXTURE_DATA, COLOR_DATA, TEXTURE_SELECT, OUTLINE_DATA.ENABLED, OUTLINE_DATA.WIDTH, INVERT_DATA.ENABLED)
+  updateShader(ASCII_SHADER, newTextureData, COLOR_DATA, INVERT_DATA)
 }
 
 
@@ -53,8 +57,8 @@ const refreshTextureAndShader = () => {
   font.load().then((font) => {
     console.log(font)
     document.fonts.add(font)
-    updateASCIITexture(TEXT_TEXTURE_DATA, SHAPE_TEXTURE_DATA, COLOR_DATA, TEXTURE_SELECT, OUTLINE_DATA.ENABLED, OUTLINE_DATA.WIDTH)
-    updateShader(ASCII_SHADER, newTextureData, COLOR_DATA)
+    const newTextureData = updateASCIITexture(TEXT_TEXTURE_DATA, SHAPE_TEXTURE_DATA, COLOR_DATA, TEXTURE_SELECT, OUTLINE_DATA.ENABLED, OUTLINE_DATA.WIDTH, INVERT_DATA.ENABLED)
+    updateShader(ASCII_SHADER, newTextureData, COLOR_DATA, INVERT_DATA)
   });
 
 // CONTROLS UI
@@ -64,6 +68,7 @@ const textFolder = controlsGUI.addFolder('TEXT');
 const shapeFolder = controlsGUI.addFolder('SHAPE')
 const colorFolder = controlsGUI.addFolder('COLOR')
 const outlineFolder = controlsGUI.addFolder('OUTLINE')
+const invertFolder = controlsGUI.addFolder('INVERT')
 
 textFolder.add(TEXT_TEXTURE_DATA, 'FONT_SIZE', 1, 100, 1).onChange(value => {
   refreshTextureAndShader()
@@ -101,7 +106,11 @@ const colorController = colorFolder.addColor(COLOR_DATA, 'COLOR').onChange(value
   refreshTextureAndShader()
 })
 colorFolder.add(COLOR_DATA, 'PICK_CHAR_COLOR_FROM_VIDEO').onChange(value => {
-  COLOR_DATA.COLOR = '#FFFFFF'
+  if(INVERT_DATA.ENABLED) {
+    COLOR_DATA.COLOR = '#000'
+  } else {
+    COLOR_DATA.COLOR = '#FFFFFF'
+  }
   refreshTextureAndShader()
   if (value) {
     colorController.disable()
@@ -125,6 +134,15 @@ outlineFolder.add(OUTLINE_DATA, 'ENABLED').onChange(value => {
 })
 
 outlineFolder.add(OUTLINE_DATA, 'WIDTH', 1,20,0.5).onChange(value => {
+  refreshTextureAndShader()
+})
+
+invertFolder.add(INVERT_DATA, 'ENABLED').onChange(value => {
+  if(value) {
+    COLOR_DATA.COLOR = '#000'
+  } else {
+    COLOR_DATA.COLOR = '#FFF'
+  }
   refreshTextureAndShader()
 })
 

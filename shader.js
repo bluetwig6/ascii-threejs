@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA) => {
+const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA) => {
     return new THREE.ShaderMaterial({
         uniforms: {
             'videoFrame': { value: null },
@@ -8,7 +8,8 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA) => {
             'u_cellSize': { value: new THREE.Vector2(ASCII_TEXTURE_DATA.cellSize, ASCII_TEXTURE_DATA.cellSize) },
             'uResolution': { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
             'u_use_video_color_for_foreground': { value: COLOR_DATA.PICK_CHAR_COLOR_FROM_VIDEO },
-            'u_PICK_BG_COLOR_FROM_VIDEO': { value: COLOR_DATA.PICK_BG_COLOR_FROM_VIDEO }
+            'u_PICK_BG_COLOR_FROM_VIDEO': { value: COLOR_DATA.PICK_BG_COLOR_FROM_VIDEO },
+            'u_invert': { value: INVERT_DATA.ENABLED}
         },
         vertexShader: `
     varying vec2 vUv;
@@ -25,6 +26,7 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA) => {
     uniform vec2 uResolution; // resolution eg: (1024,1024)
     uniform bool u_use_video_color_for_foreground;
     uniform bool u_PICK_BG_COLOR_FROM_VIDEO;
+    uniform bool u_invert;
 
     vec3 greyscale(vec3 color, float strength) {
         float g = dot(color, vec3(0.299, 0.587, 0.114));
@@ -44,6 +46,10 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA) => {
       float greyscaled = greyscale(pixelized.rgb).r; // give a number between 0 & 1  
       float characterIndex = floor((u_charCount - 1.0) * greyscaled);
 
+      if(u_invert) {
+        characterIndex = u_charCount - characterIndex;
+      }
+
       vec2 insideCellOffset = mod(uv, u_cellSize);
 
       // in px
@@ -57,6 +63,13 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA) => {
       vec4 asciiCharacter = texture(asciiImage, charUV);
       if(u_use_video_color_for_foreground) {
         gl_FragColor = asciiCharacter * pixelized;
+        if(u_invert) {
+          if(asciiCharacter.r > 0.0) {
+            gl_FragColor = asciiCharacter;
+          } else {
+            gl_FragColor = pixelized;
+          }
+        }
       } else if(u_PICK_BG_COLOR_FROM_VIDEO) {
         if(asciiCharacter.r > 0.0) {
           gl_FragColor = asciiCharacter * pixelized;
@@ -72,7 +85,7 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA) => {
     })
 }
 
-const updateShader = (ASCII_SHADER, TEXTURE_DATA, COLOR_DATA ) => {
+const updateShader = (ASCII_SHADER, TEXTURE_DATA, COLOR_DATA, INVERT_DATA ) => {
     if (ASCII_SHADER.uniforms.asciiImage.value) {
         ASCII_SHADER.uniforms.asciiImage.value.dispose();
     }
@@ -85,6 +98,7 @@ const updateShader = (ASCII_SHADER, TEXTURE_DATA, COLOR_DATA ) => {
     ASCII_SHADER.uniforms.u_charCount.value = TEXTURE_DATA.count;
     ASCII_SHADER.uniforms.u_use_video_color_for_foreground.value = COLOR_DATA.PICK_CHAR_COLOR_FROM_VIDEO
     ASCII_SHADER.uniforms.u_PICK_BG_COLOR_FROM_VIDEO.value = COLOR_DATA.PICK_BG_COLOR_FROM_VIDEO;
+    ASCII_SHADER.uniforms.u_invert.value = INVERT_DATA.ENABLED;
 }
 
 export { createASCIIShader, updateShader }

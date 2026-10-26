@@ -9,10 +9,14 @@ const CHAR_COUNT = CHAR_LIST.length
 const canvas = document.querySelector("#asciiTexture");
 const ctx = canvas.getContext('2d')
 
-export const paintASCIITexture = (width = 0, height = 0, cellSize = 8, fontSize = 8, textColor = "#FFFFFF", drawOutline = true, outlineWidth = 5) => {
+export const paintASCIITexture = (width = 0, height = 0, cellSize = 8, fontSize = 8, textColor = "#FFFFFF", drawOutline = true, outlineWidth = 5, invert = false) => {
     canvas.height = height
     canvas.width = width
-    ctx.fillStyle = '#000'
+    if(invert) {
+        ctx.fillStyle = '#FFF'
+    } else {
+        ctx.fillStyle = '#000'
+    }
     ctx.fillRect(0, 0, width, height)
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
@@ -43,10 +47,14 @@ export const paintASCIITexture = (width = 0, height = 0, cellSize = 8, fontSize 
     return { texture, count: CHAR_COUNT, cellSize };
 }
 
-export const paintASCIILineTexture = (width = 0, height = 0, cellSize = 8, steps = 8, angle = 0, textColor = "#FFFFFF", drawOutline = true, outlineWidth = 5) => {
+export const paintASCIILineTexture = (width = 0, height = 0, cellSize = 8, steps = 8, angle = 0, textColor = "#FFFFFF", drawOutline = true, outlineWidth = 5, invert = false) => {
     canvas.height = height
     canvas.width = width
-    ctx.fillStyle = '#000'
+    if(invert) {
+        ctx.fillStyle = '#FFF'
+    } else {
+        ctx.fillStyle = '#000'
+    }
     ctx.fillRect(0, 0, width, height)
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
@@ -81,10 +89,10 @@ export const paintASCIILineTexture = (width = 0, height = 0, cellSize = 8, steps
     return { texture, count: steps, cellSize };
 }
 
-export const updateASCIITexture = (TEXT_TEXTURE_DATA, SHAPE_TEXTURE_DATA, COLOR_DATA, TEXTURE_SELECT, OUTLINE_ENABLED, OUTLINE_WIDTH) => {
+export const updateASCIITexture = (TEXT_TEXTURE_DATA, SHAPE_TEXTURE_DATA, COLOR_DATA, TEXTURE_SELECT, OUTLINE_ENABLED, OUTLINE_WIDTH, INVERT) => {
     if (TEXTURE_SELECT.MODE === "TEXT") {
-        return paintASCIITexture(window.innerWidth, window.innerHeight, TEXT_TEXTURE_DATA.CELL_SIZE, TEXT_TEXTURE_DATA.FONT_SIZE, COLOR_DATA.COLOR, OUTLINE_ENABLED, OUTLINE_WIDTH)
+        return paintASCIITexture(window.innerWidth, window.innerHeight, TEXT_TEXTURE_DATA.CELL_SIZE, TEXT_TEXTURE_DATA.FONT_SIZE, COLOR_DATA.COLOR, OUTLINE_ENABLED, OUTLINE_WIDTH, INVERT)
     } else if (TEXTURE_SELECT.MODE === 'SHAPE') {
-        return paintASCIILineTexture(window.innerWidth, window.innerHeight, SHAPE_TEXTURE_DATA.CELL_SIZE, SHAPE_TEXTURE_DATA.STEPS, SHAPE_TEXTURE_DATA.ANGLE, COLOR_DATA.COLOR, OUTLINE_ENABLED, OUTLINE_WIDTH)
+        return paintASCIILineTexture(window.innerWidth, window.innerHeight, SHAPE_TEXTURE_DATA.CELL_SIZE, SHAPE_TEXTURE_DATA.STEPS, SHAPE_TEXTURE_DATA.ANGLE, COLOR_DATA.COLOR, OUTLINE_ENABLED, OUTLINE_WIDTH, INVERT)
     }
 }
