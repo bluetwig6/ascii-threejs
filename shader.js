@@ -44,13 +44,10 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA) => {
       vec4 pixelized = texture(videoFrame, cellCenter/uResolution); // this has the data of the center of current pixel's cell's
 
       float greyscaled = greyscale(pixelized.rgb).r; // give a number between 0 & 1  
-      float characterIndex;
-      
-      
+      float characterIndex = floor((u_charCount - 1.0) * greyscaled);
+
       if(u_invert) {
-        characterIndex = floor((u_charCount - 1.0) * (1.0- greyscaled));
-      } else {
-        characterIndex = floor((u_charCount - 1.0) * greyscaled);
+        characterIndex = u_charCount - characterIndex;
       }
 
       vec2 insideCellOffset = mod(uv, u_cellSize);
