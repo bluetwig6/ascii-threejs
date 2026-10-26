@@ -9,10 +9,10 @@ const CHAR_COUNT = CHAR_LIST.length
 const canvas = document.querySelector("#asciiTexture");
 const ctx = canvas.getContext('2d')
 
-export const paintASCIITexture = (width = 0, height = 0, cellSize = 8, fontSize = 8, textColor = "#FFFFFF", drawOutline = true, outlineWidth = 5, invert = false) => {
+export const paintASCIITexture = (width = 0, height = 0, cellSize = 8, fontSize = 8, textColor = "#FFFFFF", drawOutline = true, outlineWidth = 5, invert = false, whiteBG = false) => {
     canvas.height = height
     canvas.width = width
-    if(invert) {
+    if (invert || whiteBG) {
         ctx.fillStyle = '#FFF'
     } else {
         ctx.fillStyle = '#000'
@@ -20,7 +20,11 @@ export const paintASCIITexture = (width = 0, height = 0, cellSize = 8, fontSize 
     ctx.fillRect(0, 0, width, height)
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.fillStyle = textColor
+    if (invert || whiteBG) {
+        ctx.fillStyle = '#000'
+    } else {
+        ctx.fillStyle = textColor
+    }
     ctx.font = `bold ${fontSize}px "Inter"`
     CHAR_LIST.forEach((char, idx) => {
         ctx.fillText(char, idx * cellSize + cellSize / 2, cellSize / 2)
@@ -28,11 +32,11 @@ export const paintASCIITexture = (width = 0, height = 0, cellSize = 8, fontSize 
             ctx.beginPath();
             ctx.lineWidth = outlineWidth;
             ctx.strokeStyle = textColor;
-            ctx.moveTo(idx * cellSize , 0 + outlineWidth/2)
-            ctx.lineTo(idx * cellSize + cellSize - outlineWidth/2, 0 + outlineWidth/2)
-            ctx.lineTo(idx * cellSize + cellSize - outlineWidth/2, cellSize - outlineWidth/2)
-            ctx.lineTo(idx * cellSize + outlineWidth/2, cellSize - outlineWidth/2)
-            ctx.lineTo(idx * cellSize + outlineWidth/2, 0 + outlineWidth/2)
+            ctx.moveTo(idx * cellSize, 0 + outlineWidth / 2)
+            ctx.lineTo(idx * cellSize + cellSize - outlineWidth / 2, 0 + outlineWidth / 2)
+            ctx.lineTo(idx * cellSize + cellSize - outlineWidth / 2, cellSize - outlineWidth / 2)
+            ctx.lineTo(idx * cellSize + outlineWidth / 2, cellSize - outlineWidth / 2)
+            ctx.lineTo(idx * cellSize + outlineWidth / 2, 0 + outlineWidth / 2)
             ctx.stroke()
         }
     })
@@ -47,10 +51,10 @@ export const paintASCIITexture = (width = 0, height = 0, cellSize = 8, fontSize 
     return { texture, count: CHAR_COUNT, cellSize };
 }
 
-export const paintASCIILineTexture = (width = 0, height = 0, cellSize = 8, steps = 8, angle = 0, textColor = "#FFFFFF", drawOutline = true, outlineWidth = 5, invert = false) => {
+export const paintASCIILineTexture = (width = 0, height = 0, cellSize = 8, steps = 8, angle = 0, textColor = "#FFFFFF", drawOutline = true, outlineWidth = 5, invert = false, whiteBG = false) => {
     canvas.height = height
     canvas.width = width
-    if(invert) {
+    if (invert || whiteBG) {
         ctx.fillStyle = '#FFF'
     } else {
         ctx.fillStyle = '#000'
@@ -58,7 +62,11 @@ export const paintASCIILineTexture = (width = 0, height = 0, cellSize = 8, steps
     ctx.fillRect(0, 0, width, height)
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.strokeStyle = textColor
+    if (invert || whiteBG) {
+        ctx.fillStyle = '#000'
+    } else {
+        ctx.fillStyle = textColor
+    }
     const angleInRadians = angle * (Math.PI / 180);
     for (let idx = 0; idx < steps; idx++) {
         const center = [idx * cellSize + cellSize / 2, cellSize / 2]
@@ -89,10 +97,10 @@ export const paintASCIILineTexture = (width = 0, height = 0, cellSize = 8, steps
     return { texture, count: steps, cellSize };
 }
 
-export const updateASCIITexture = (TEXT_TEXTURE_DATA, SHAPE_TEXTURE_DATA, COLOR_DATA, TEXTURE_SELECT, OUTLINE_ENABLED, OUTLINE_WIDTH, INVERT) => {
+export const updateASCIITexture = (TEXT_TEXTURE_DATA, SHAPE_TEXTURE_DATA, COLOR_DATA, TEXTURE_SELECT, OUTLINE_ENABLED, OUTLINE_WIDTH, INVERT, WHITE_BG) => {
     if (TEXTURE_SELECT.MODE === "TEXT") {
-        return paintASCIITexture(window.innerWidth, window.innerHeight, TEXT_TEXTURE_DATA.CELL_SIZE, TEXT_TEXTURE_DATA.FONT_SIZE, COLOR_DATA.COLOR, OUTLINE_ENABLED, OUTLINE_WIDTH, INVERT)
+        return paintASCIITexture(window.innerWidth, window.innerHeight, TEXT_TEXTURE_DATA.CELL_SIZE, TEXT_TEXTURE_DATA.FONT_SIZE, COLOR_DATA.COLOR, OUTLINE_ENABLED, OUTLINE_WIDTH, INVERT, WHITE_BG.ENABLED)
     } else if (TEXTURE_SELECT.MODE === 'SHAPE') {
-        return paintASCIILineTexture(window.innerWidth, window.innerHeight, SHAPE_TEXTURE_DATA.CELL_SIZE, SHAPE_TEXTURE_DATA.STEPS, SHAPE_TEXTURE_DATA.ANGLE, COLOR_DATA.COLOR, OUTLINE_ENABLED, OUTLINE_WIDTH, INVERT)
+        return paintASCIILineTexture(window.innerWidth, window.innerHeight, SHAPE_TEXTURE_DATA.CELL_SIZE, SHAPE_TEXTURE_DATA.STEPS, SHAPE_TEXTURE_DATA.ANGLE, COLOR_DATA.COLOR, OUTLINE_ENABLED, OUTLINE_WIDTH, INVERT, WHITE_BG.ENABLED)
     }
 }

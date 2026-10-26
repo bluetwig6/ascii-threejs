@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA) => {
+const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA, WHITE_BG) => {
     return new THREE.ShaderMaterial({
         uniforms: {
             'videoFrame': { value: null },
@@ -9,7 +9,8 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA) => {
             'uResolution': { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
             'u_use_video_color_for_foreground': { value: COLOR_DATA.PICK_CHAR_COLOR_FROM_VIDEO },
             'u_PICK_BG_COLOR_FROM_VIDEO': { value: COLOR_DATA.PICK_BG_COLOR_FROM_VIDEO },
-            'u_invert': { value: INVERT_DATA.ENABLED}
+            'u_invert': { value: INVERT_DATA.ENABLED},
+            'u_white_bg': { value: WHITE_BG.ENABLED},
         },
         vertexShader: `
     varying vec2 vUv;
@@ -27,6 +28,7 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA) => {
     uniform bool u_use_video_color_for_foreground;
     uniform bool u_PICK_BG_COLOR_FROM_VIDEO;
     uniform bool u_invert;
+    uniform bool u_white_bg;
 
     vec3 greyscale(vec3 color, float strength) {
         float g = dot(color, vec3(0.299, 0.587, 0.114));
@@ -44,11 +46,15 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA) => {
       vec4 pixelized = texture(videoFrame, cellCenter/uResolution); // this has the data of the center of current pixel's cell's
 
       float greyscaled = greyscale(pixelized.rgb).r; // give a number between 0 & 1  
-      float characterIndex = floor((u_charCount - 1.0) * greyscaled);
+      float characterIndex;
 
       if(u_invert) {
         characterIndex = u_charCount - characterIndex;
-      }
+      } else if(u_white_bg) {
+        characterIndex = floor((u_charCount - 1.0) * (1.0 - greyscaled));
+      } else {
+      characterIndex = floor((u_charCount - 1.0) * greyscaled);
+        }
 
       vec2 insideCellOffset = mod(uv, u_cellSize);
 
@@ -85,7 +91,7 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA) => {
     })
 }
 
-const updateShader = (ASCII_SHADER, TEXTURE_DATA, COLOR_DATA, INVERT_DATA ) => {
+const updateShader = (ASCII_SHADER, TEXTURE_DATA, COLOR_DATA, INVERT_DATA, WHITE_BG ) => {
     if (ASCII_SHADER.uniforms.asciiImage.value) {
         ASCII_SHADER.uniforms.asciiImage.value.dispose();
     }
@@ -99,6 +105,7 @@ const updateShader = (ASCII_SHADER, TEXTURE_DATA, COLOR_DATA, INVERT_DATA ) => {
     ASCII_SHADER.uniforms.u_use_video_color_for_foreground.value = COLOR_DATA.PICK_CHAR_COLOR_FROM_VIDEO
     ASCII_SHADER.uniforms.u_PICK_BG_COLOR_FROM_VIDEO.value = COLOR_DATA.PICK_BG_COLOR_FROM_VIDEO;
     ASCII_SHADER.uniforms.u_invert.value = INVERT_DATA.ENABLED;
+    ASCII_SHADER.uniforms.u_white_bg.value = WHITE_BG.ENABLED;
 }
 
 export { createASCIIShader, updateShader }
