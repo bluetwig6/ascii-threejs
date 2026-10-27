@@ -64,8 +64,10 @@ export const paintASCIILineTexture = (width = 0, height = 0, cellSize = 8, steps
     ctx.textBaseline = 'middle'
     if (invert || whiteBG) {
         ctx.fillStyle = '#000'
+        ctx.strokeStyle = '#000'
     } else {
         ctx.fillStyle = textColor
+        ctx.strokeStyle = textColor
     }
     const angleInRadians = angle * (Math.PI / 180);
     for (let idx = 0; idx < steps; idx++) {
