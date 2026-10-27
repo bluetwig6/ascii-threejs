@@ -47,6 +47,7 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA, WHITE_BG
 
       float greyscaled = greyscale(pixelized.rgb).r; // give a number between 0 & 1  
       float characterIndex;
+      float charsPerRow = floor(uResolution.x/u_cellSize.x);
 
       if(u_invert) {
         characterIndex = u_charCount - characterIndex;
@@ -56,11 +57,13 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA, WHITE_BG
       characterIndex = floor((u_charCount - 1.0) * greyscaled);
         }
 
+      float charPosX = mod(characterIndex , charsPerRow) * u_cellSize.x;
+      float charPosY = uResolution.y - u_cellSize.y * (1.0 + floor(characterIndex/charsPerRow));
       vec2 insideCellOffset = mod(uv, u_cellSize);
 
       // in px
-      float xPos = insideCellOffset.x  + (characterIndex * u_cellSize.x);
-      float yPos = (uResolution.y - u_cellSize.y) + insideCellOffset.y;;
+      float xPos = insideCellOffset.x  + charPosX;
+      float yPos = charPosY + insideCellOffset.y;
 
       float spaceXPos = xPos/uResolution.x;
       float spaceYPos = yPos/uResolution.y;

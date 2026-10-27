@@ -26,17 +26,20 @@ export const paintASCIITexture = (width = 0, height = 0, cellSize = 8, fontSize 
         ctx.fillStyle = textColor
     }
     ctx.font = `bold ${fontSize}px "Inter"`
+    const charsPerRow = Math.floor(width / cellSize)
     CHAR_LIST.forEach((char, idx) => {
-        ctx.fillText(char, idx * cellSize + cellSize / 2, cellSize / 2)
+        const xPos = idx % charsPerRow * (cellSize)
+        const yPos = Math.floor(idx/charsPerRow) * cellSize
+        ctx.fillText(char, xPos + cellSize / 2, yPos + cellSize/2)
         if (drawOutline) {
             ctx.beginPath();
             ctx.lineWidth = outlineWidth;
             ctx.strokeStyle = textColor;
-            ctx.moveTo(idx * cellSize, 0 + outlineWidth / 2)
-            ctx.lineTo(idx * cellSize + cellSize - outlineWidth / 2, 0 + outlineWidth / 2)
-            ctx.lineTo(idx * cellSize + cellSize - outlineWidth / 2, cellSize - outlineWidth / 2)
-            ctx.lineTo(idx * cellSize + outlineWidth / 2, cellSize - outlineWidth / 2)
-            ctx.lineTo(idx * cellSize + outlineWidth / 2, 0 + outlineWidth / 2)
+            ctx.moveTo(xPos, yPos + outlineWidth / 2)
+            ctx.lineTo(xPos + cellSize - outlineWidth / 2, yPos + outlineWidth / 2)
+            ctx.lineTo(xPos + cellSize - outlineWidth / 2, yPos + cellSize - outlineWidth / 2)
+            ctx.lineTo(xPos + outlineWidth / 2, yPos + cellSize - outlineWidth / 2)
+            ctx.lineTo(xPos + outlineWidth / 2, yPos + outlineWidth / 2)
             ctx.stroke()
         }
     })
@@ -70,23 +73,27 @@ export const paintASCIILineTexture = (width = 0, height = 0, cellSize = 8, steps
         ctx.strokeStyle = textColor
     }
     const angleInRadians = angle * (Math.PI / 180);
+    const charsPerRow = Math.floor(width / cellSize)
     for (let idx = 0; idx < steps; idx++) {
-        const center = [idx * cellSize + cellSize / 2, cellSize / 2]
+        const xPos = idx % charsPerRow * (cellSize)
+        const yPos = Math.floor(idx/charsPerRow) * cellSize
+        const center = [xPos + (cellSize / 2), yPos + (cellSize / 2)]
         const start = [center[0] - ((idx / steps) * cellSize / 2 * Math.cos(angleInRadians)), center[1] - (((idx / steps) * cellSize / 2) * Math.sin(angleInRadians))]
         const end = [center[0] + ((idx / steps) * cellSize / 2 * Math.cos(angleInRadians)), center[1] + (((idx / steps) * cellSize / 2) * Math.sin(angleInRadians))]
+        ctx.beginPath()
         ctx.moveTo(start[0], start[1])
         ctx.lineTo(end[0], end[1])
         ctx.stroke();
 
-        if (drawOutline) {
+         if (drawOutline) {
             ctx.beginPath();
             ctx.lineWidth = outlineWidth;
             ctx.strokeStyle = textColor;
-            ctx.moveTo(idx * cellSize, 0)
-            ctx.lineTo(idx * cellSize + cellSize, 0)
-            ctx.lineTo(idx * cellSize + cellSize, cellSize)
-            ctx.lineTo(idx * cellSize, cellSize)
-            ctx.lineTo(idx * cellSize, 0)
+            ctx.moveTo(xPos, yPos + outlineWidth / 2)
+            ctx.lineTo(xPos + cellSize - outlineWidth / 2, yPos + outlineWidth / 2)
+            ctx.lineTo(xPos + cellSize - outlineWidth / 2, yPos + cellSize - outlineWidth / 2)
+            ctx.lineTo(xPos + outlineWidth / 2, yPos + cellSize - outlineWidth / 2)
+            ctx.lineTo(xPos + outlineWidth / 2, yPos + outlineWidth / 2)
             ctx.stroke()
         }
     }
