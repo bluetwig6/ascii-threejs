@@ -43,6 +43,10 @@ let WHITE_BG = {
   ENABLED: false
 }
 
+let VIDEO_FIT = {
+  COVER: false
+}
+
 // ASCII TEXTURE AND SHADER STUFF
 let ASCII_TEXTURE_DATA = paintASCIITexture(window.innerWidth, window.innerHeight, TEXT_TEXTURE_DATA.CELL_SIZE, TEXT_TEXTURE_DATA.FONT_SIZE, COLOR_DATA.COLOR, OUTLINE_DATA.ENABLED, OUTLINE_DATA.WIDTH, INVERT_DATA.ENABLED, WHITE_BG.ENABLED)
 const ASCII_SHADER = createASCIIShader(ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA, WHITE_BG)
@@ -74,6 +78,8 @@ const colorFolder = controlsGUI.addFolder('COLOR')
 const outlineFolder = controlsGUI.addFolder('OUTLINE')
 const invertFolder = controlsGUI.addFolder('INVERT')
 const whiteBGFolder = controlsGUI.addFolder('WHITE BACKGROUND')
+const videoFitFolder = controlsGUI.addFolder('VIDEO FIT')
+
 
 textFolder.add(TEXT_TEXTURE_DATA, 'FONT_SIZE', 1, 100, 1).onChange(value => {
   refreshTextureAndShader()
@@ -161,6 +167,12 @@ whiteBGFolder.add(WHITE_BG, 'ENABLED').onChange(value => {
   refreshTextureAndShader()
 })
 
+videoFitFolder.add(VIDEO_FIT, 'COVER').onChange(value => {
+  handleResize()
+  refreshTextureAndShader()
+})
+
+
 const reset_parameters = () => {
   controlsGUI.reset()
   refreshTextureAndShader()
@@ -211,7 +223,7 @@ const asciiPass = new ShaderPass(ASCII_SHADER, 'videoFrame');
 composer.addPass(asciiPass);
 
 const handleResize = () => {
-  resizeScene(renderer, composer, camera, plane, video)
+  resizeScene(renderer, composer, camera, plane, video, VIDEO_FIT.COVER)
   refreshTextureAndShader()
 }
 
