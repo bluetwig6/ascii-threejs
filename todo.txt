@@ -1,0 +1,8 @@
+1. remove invert mode
+2. make picking color from video work for text
+3. make picking color from video work for bg
+4. structure the menu
+5. have a single cell size control and constant
+6. make outline work in both light and dark bg modes
+7. figure out how to use a video or photo or gradient as a background
+8. make the controls code more readable
