@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA, WHITE_BG) => {
+const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA, LIGHT_BG) => {
     return new THREE.ShaderMaterial({
         uniforms: {
             'videoFrame': { value: null },
@@ -10,7 +10,7 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA, WHITE_BG
             'u_use_video_color_for_foreground': { value: COLOR_DATA.PICK_CHAR_COLOR_FROM_VIDEO },
             'u_PICK_BG_COLOR_FROM_VIDEO': { value: COLOR_DATA.PICK_BG_COLOR_FROM_VIDEO },
             'u_invert': { value: INVERT_DATA.ENABLED},
-            'u_white_bg': { value: WHITE_BG.ENABLED},
+            'u_light_bg': { value: LIGHT_BG},
         },
         vertexShader: `
     varying vec2 vUv;
@@ -28,7 +28,7 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA, WHITE_BG
     uniform bool u_use_video_color_for_foreground;
     uniform bool u_PICK_BG_COLOR_FROM_VIDEO;
     uniform bool u_invert;
-    uniform bool u_white_bg;
+    uniform bool u_light_bg;
 
     vec3 greyscale(vec3 color, float strength) {
         float g = dot(color, vec3(0.299, 0.587, 0.114));
@@ -45,17 +45,17 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA, WHITE_BG
       vec2 cellCenter = (floor(uv/u_cellSize) + 0.5 ) * u_cellSize;
       vec4 pixelized = texture(videoFrame, cellCenter/uResolution); // this has the data of the center of current pixel's cell's
 
-      float greyscaled = greyscale(pixelized.rgb).r; // give a number between 0 & 1  
+      float greyscaled = greyscale(pixelized.rgb).r * 2.0; // give a number between 0 & 1  
       float characterIndex;
       float charsPerRow = floor(uResolution.x/u_cellSize.x);
 
       if(u_invert) {
         characterIndex = u_charCount - characterIndex;
-      } else if(u_white_bg) {
+      } else if(u_light_bg) {
         characterIndex = floor((u_charCount - 1.0) * (1.0 - greyscaled));
       } else {
-      characterIndex = floor((u_charCount - 1.0) * greyscaled);
-        }
+        characterIndex = floor((u_charCount - 1.0) * greyscaled);
+      }
 
       float charPosX = mod(characterIndex , charsPerRow) * u_cellSize.x;
       float charPosY = uResolution.y - u_cellSize.y * (1.0 + floor(characterIndex/charsPerRow));
@@ -70,7 +70,10 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA, WHITE_BG
 
       vec2 charUV = vec2(spaceXPos, spaceYPos); //position of the pixel in asciiimage to be painted in the output
       vec4 asciiCharacter = texture(asciiImage, charUV);
-      if(u_use_video_color_for_foreground) {
+
+      if(u_light_bg){
+        gl_FragColor = asciiCharacter;
+      } else if(u_use_video_color_for_foreground) {
         gl_FragColor = asciiCharacter * pixelized;
         if(u_invert) {
           if(asciiCharacter.r > 0.0) {
@@ -94,7 +97,7 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA, WHITE_BG
     })
 }
 
-const updateShader = (ASCII_SHADER, TEXTURE_DATA, COLOR_DATA, INVERT_DATA, WHITE_BG ) => {
+const updateShader = (ASCII_SHADER, TEXTURE_DATA, COLOR_DATA, INVERT_DATA, LIGHT_BG ) => {
     if (ASCII_SHADER.uniforms.asciiImage.value) {
         ASCII_SHADER.uniforms.asciiImage.value.dispose();
     }
@@ -108,7 +111,7 @@ const updateShader = (ASCII_SHADER, TEXTURE_DATA, COLOR_DATA, INVERT_DATA, WHITE
     ASCII_SHADER.uniforms.u_use_video_color_for_foreground.value = COLOR_DATA.PICK_CHAR_COLOR_FROM_VIDEO
     ASCII_SHADER.uniforms.u_PICK_BG_COLOR_FROM_VIDEO.value = COLOR_DATA.PICK_BG_COLOR_FROM_VIDEO;
     ASCII_SHADER.uniforms.u_invert.value = INVERT_DATA.ENABLED;
-    ASCII_SHADER.uniforms.u_white_bg.value = WHITE_BG.ENABLED;
+    ASCII_SHADER.uniforms.u_light_bg.value = LIGHT_BG;
 }
 
 export { createASCIIShader, updateShader }

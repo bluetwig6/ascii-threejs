@@ -39,20 +39,42 @@ let INVERT_DATA = {
   ENABLED: false
 }
 
-let WHITE_BG = {
-  ENABLED: false
+let COLORS = {
+  MODE: "DARK BACKGROUND", // "LIGHT BACKGROUND"
+  CHAR_COLOR: "#FFFFFF",
+  BG_COLOR: "#000000"
 }
 
 let VIDEO_FIT = {
   COVER: false
 }
 
+const returnTexureArgs = () => {
+  return {
+    width: window.innerWidth,
+    height: window.innerHeight,
+    drawOutline: OUTLINE_DATA.ENABLED,
+    outlineWidth: OUTLINE_DATA.WIDTH,
+    ...(TEXTURE_SELECT.MODE === 'TEXT' ? ({
+      fontSize: TEXT_TEXTURE_DATA.FONT_SIZE,
+      cellSize: TEXT_TEXTURE_DATA.CELL_SIZE
+    }): ({
+      steps: SHAPE_TEXTURE_DATA.STEPS,
+      angle: SHAPE_TEXTURE_DATA.ANGLE,
+      cellSize: SHAPE_TEXTURE_DATA.CELL_SIZE,
+    })),
+    charColor: COLORS.CHAR_COLOR,
+    bgColor: COLORS.BG_COLOR,
+    mode: TEXTURE_SELECT.MODE
+  }
+}
+
 // ASCII TEXTURE AND SHADER STUFF
-let ASCII_TEXTURE_DATA = paintASCIITexture(window.innerWidth, window.innerHeight, TEXT_TEXTURE_DATA.CELL_SIZE, TEXT_TEXTURE_DATA.FONT_SIZE, COLOR_DATA.COLOR, OUTLINE_DATA.ENABLED, OUTLINE_DATA.WIDTH, INVERT_DATA.ENABLED, WHITE_BG.ENABLED)
-const ASCII_SHADER = createASCIIShader(ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA, WHITE_BG)
+let ASCII_TEXTURE_DATA = paintASCIITexture({...returnTexureArgs()})
+const ASCII_SHADER = createASCIIShader(ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA, COLORS.MODE === 'LIGHT BACKGROUND')
 const refreshTextureAndShader = () => {
-  const newTextureData = updateASCIITexture(TEXT_TEXTURE_DATA, SHAPE_TEXTURE_DATA, COLOR_DATA, TEXTURE_SELECT, OUTLINE_DATA.ENABLED, OUTLINE_DATA.WIDTH, INVERT_DATA.ENABLED, WHITE_BG)
-  updateShader(ASCII_SHADER, newTextureData, COLOR_DATA, INVERT_DATA, WHITE_BG)
+  const newTextureData = updateASCIITexture({...returnTexureArgs()})
+  updateShader(ASCII_SHADER, newTextureData, COLOR_DATA, INVERT_DATA, COLORS.MODE === 'LIGHT BACKGROUND')
 }
 
 
@@ -62,11 +84,10 @@ const refreshTextureAndShader = () => {
     weight: "400",
     stretch: "condensed",
   });
-  font.load().then((font) => {
-    console.log(font)
+font.load().then((font) => {
     document.fonts.add(font)
-    const newTextureData = updateASCIITexture(TEXT_TEXTURE_DATA, SHAPE_TEXTURE_DATA, COLOR_DATA, TEXTURE_SELECT, OUTLINE_DATA.ENABLED, OUTLINE_DATA.WIDTH, INVERT_DATA.ENABLED, WHITE_BG)
-    updateShader(ASCII_SHADER, newTextureData, COLOR_DATA, INVERT_DATA, WHITE_BG)
+    const newTextureData = updateASCIITexture({...returnTexureArgs()})
+    updateShader(ASCII_SHADER, newTextureData, COLOR_DATA, INVERT_DATA, COLORS.MODE === 'LIGHT BACKGROUND')
   });
 
 // CONTROLS UI
@@ -77,8 +98,8 @@ const shapeFolder = controlsGUI.addFolder('SHAPE')
 const colorFolder = controlsGUI.addFolder('COLOR')
 const outlineFolder = controlsGUI.addFolder('OUTLINE')
 const invertFolder = controlsGUI.addFolder('INVERT')
-const whiteBGFolder = controlsGUI.addFolder('WHITE BACKGROUND')
 const videoFitFolder = controlsGUI.addFolder('VIDEO FIT')
+const colorsFolder = controlsGUI.addFolder('COLORS')
 
 
 textFolder.add(TEXT_TEXTURE_DATA, 'FONT_SIZE', 1, 100, 1).onChange(value => {
@@ -157,15 +178,25 @@ invertFolder.add(INVERT_DATA, 'ENABLED').onChange(value => {
   refreshTextureAndShader()
 })
 
-whiteBGFolder.add(WHITE_BG, 'ENABLED').onChange(value => {
-  if(value) {
-    COLOR_DATA.COLOR = '#000'
+colorsFolder.add(COLORS, 'MODE', ["DARK BACKGROUND", "LIGHT BACKGROUND"]).onChange(value => {
+  if(value === 'DARK BACKGROUND') {
+    COLORS.CHAR_COLOR = '#FFF'
+    COLORS.BG_COLOR = '#000'
   } else {
-    COLOR_DATA.COLOR = '#FFF'
+    COLORS.CHAR_COLOR = '#000'
+    COLORS.BG_COLOR = '#FFF'
   }
-  INVERT_DATA.ENABLED = false
+  console.log(COLORS)
   refreshTextureAndShader()
 })
+
+colorsFolder.addColor(COLORS, 'CHAR_COLOR').onChange(value => {
+  refreshTextureAndShader()
+}).listen()
+
+colorsFolder.addColor(COLORS, 'BG_COLOR').onChange(value => {
+  refreshTextureAndShader()
+}).listen()
 
 videoFitFolder.add(VIDEO_FIT, 'COVER').onChange(value => {
   handleResize()
