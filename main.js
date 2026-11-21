@@ -18,15 +18,11 @@ let OUTLINE_DATA = {
   WIDTH: 1
 }
 
-let SHAPE_TEXTURE_DATA = {
+let TEXTURE_DATA = {
   STEPS: 20,
   CELL_SIZE: 22,
   ANGLE: 45,
-}
-
-let TEXT_TEXTURE_DATA = {
-  FONT_SIZE: 8,
-  CELL_SIZE: 21,
+  FONT_SIZE: 12
 }
 
 let COLOR_DATA = {
@@ -56,12 +52,12 @@ const returnTexureArgs = () => {
     drawOutline: OUTLINE_DATA.ENABLED,
     outlineWidth: OUTLINE_DATA.WIDTH,
     ...(TEXTURE_SELECT.MODE === 'TEXT' ? ({
-      fontSize: TEXT_TEXTURE_DATA.FONT_SIZE,
-      cellSize: TEXT_TEXTURE_DATA.CELL_SIZE
+      fontSize: TEXTURE_DATA.FONT_SIZE,
+      cellSize: TEXTURE_DATA.CELL_SIZE
     }): ({
-      steps: SHAPE_TEXTURE_DATA.STEPS,
-      angle: SHAPE_TEXTURE_DATA.ANGLE,
-      cellSize: SHAPE_TEXTURE_DATA.CELL_SIZE,
+      steps: TEXTURE_DATA.STEPS,
+      angle: TEXTURE_DATA.ANGLE,
+      cellSize: TEXTURE_DATA.CELL_SIZE,
     })),
     charColor: COLORS.CHAR_COLOR,
     bgColor: COLORS.BG_COLOR,
@@ -73,6 +69,7 @@ const returnTexureArgs = () => {
 let ASCII_TEXTURE_DATA = paintASCIITexture({...returnTexureArgs()})
 const ASCII_SHADER = createASCIIShader(ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA, COLORS.MODE === 'LIGHT BACKGROUND')
 const refreshTextureAndShader = () => {
+  console.log(TEXTURE_SELECT.MODE)
   const newTextureData = updateASCIITexture({...returnTexureArgs()})
   updateShader(ASCII_SHADER, newTextureData, COLOR_DATA, INVERT_DATA, COLORS.MODE === 'LIGHT BACKGROUND')
 }
@@ -93,8 +90,7 @@ font.load().then((font) => {
 // CONTROLS UI
 const controlsGUI = new GUI({width: 500});
 const textureMode = controlsGUI.addFolder('TEXTURE MODE')
-const textFolder = controlsGUI.addFolder('TEXT');
-const shapeFolder = controlsGUI.addFolder('SHAPE')
+const textureDataFolder = controlsGUI.addFolder('TEXTURE_DATA');
 const colorFolder = controlsGUI.addFolder('COLOR')
 const outlineFolder = controlsGUI.addFolder('OUTLINE')
 const invertFolder = controlsGUI.addFolder('INVERT')
@@ -102,37 +98,45 @@ const videoFitFolder = controlsGUI.addFolder('VIDEO FIT')
 const colorsFolder = controlsGUI.addFolder('COLORS')
 
 
-textFolder.add(TEXT_TEXTURE_DATA, 'FONT_SIZE', 1, 100, 1).onChange(value => {
+const fontSizeController = textureDataFolder.add(TEXTURE_DATA, 'FONT_SIZE', 1, 100, 1).onChange(value => {
   refreshTextureAndShader()
 })
-textFolder.add(TEXT_TEXTURE_DATA, 'CELL_SIZE', 1, 100, 1).onChange(value => {
+
+const cellSizeController = textureDataFolder.add(TEXTURE_DATA, 'CELL_SIZE', 1, 100, 1).onChange(value => {
   refreshTextureAndShader()
 })
+
+const stepsController = textureDataFolder.add(TEXTURE_DATA, 'STEPS', 1, 100, 1).onChange(value => {
+  refreshTextureAndShader()
+})
+
+const angleController = textureDataFolder.add(TEXTURE_DATA, 'ANGLE', 0, 360, 1).onChange(value => {
+  refreshTextureAndShader()
+})
+
+const modeControllerMap = {
+  "SHAPE":[stepsController, angleController],
+  "TEXT": [fontSizeController]
+}
+
+const disableControllersOnModeSwitch = (mode = null) => {
+  if(mode) {
+    Object.keys(modeControllerMap).forEach(key => {
+      if(key === mode) {
+        modeControllerMap[key].forEach(controller => controller.enable())
+      } else {
+        modeControllerMap[key].forEach(controller => controller.disable())
+      }
+    })
+  }
+}
 
 textureMode.add(TEXTURE_SELECT, 'MODE', ['TEXT', 'SHAPE']).onChange(value => {
-  if (value === 'TEXT') {
-    refreshTextureAndShader()
-    textFolder.controllers.forEach(controller => controller.enable())
-    shapeFolder.controllers.forEach(controller => controller.disable())
-  }
-  if (value === 'SHAPE') {
-    refreshTextureAndShader()
-    textFolder.controllers.forEach(controller => controller.disable())
-    shapeFolder.controllers.forEach(controller => controller.enable())
-  }
+  refreshTextureAndShader()
+  disableControllersOnModeSwitch(value)
 })
 
-shapeFolder.add(SHAPE_TEXTURE_DATA, 'CELL_SIZE', 1, 100, 1).onChange(value => {
-  refreshTextureAndShader()
-})
-shapeFolder.add(SHAPE_TEXTURE_DATA, 'STEPS', 1, 100, 1).onChange(value => {
-  refreshTextureAndShader()
-})
-shapeFolder.add(SHAPE_TEXTURE_DATA, 'ANGLE', 0, 360, 1).onChange(value => {
-  refreshTextureAndShader()
-})
-
-shapeFolder.controllers.forEach(controller => controller.disable())
+disableControllersOnModeSwitch(TEXTURE_SELECT.MODE)
 
 const colorController = colorFolder.addColor(COLOR_DATA, 'COLOR').onChange(value => {
   refreshTextureAndShader()

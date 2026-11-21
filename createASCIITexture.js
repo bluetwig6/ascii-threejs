@@ -110,7 +110,7 @@ export const paintASCIILineTexture = ({
 export const updateASCIITexture = (props) => {
     if (props.mode === "TEXT") {
         return paintASCIITexture(props)
-    } else if (mode === 'SHAPE') {
+    } else if (props.mode === 'SHAPE') {
         return paintASCIILineTexture(props)
     }
 }
