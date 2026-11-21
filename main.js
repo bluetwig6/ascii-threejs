@@ -26,19 +26,16 @@ let TEXTURE_DATA = {
 }
 
 let COLOR_DATA = {
-  COLOR: "#FFFFFF",
-  PICK_CHAR_COLOR_FROM_VIDEO: false,
-  PICK_BG_COLOR_FROM_VIDEO: false
-}
-
-let INVERT_DATA = {
-  ENABLED: false
+  CHAR_TRANSPARENCY: 0,
+  BACKGROUND_TRANSPARENCY: 0,
+  PICK_BG_COLOR_FROM_VIDEO: false,
+  INVERT: false,
+  CHAR_COLOR: "#FFFFFF",
+  BG_COLOR: "#000000"
 }
 
 let COLORS = {
   MODE: "DARK BACKGROUND", // "LIGHT BACKGROUND"
-  CHAR_COLOR: "#FFFFFF",
-  BG_COLOR: "#000000"
 }
 
 let VIDEO_FIT = {
@@ -59,19 +56,19 @@ const returnTexureArgs = () => {
       angle: TEXTURE_DATA.ANGLE,
       cellSize: TEXTURE_DATA.CELL_SIZE,
     })),
-    charColor: COLORS.CHAR_COLOR,
-    bgColor: COLORS.BG_COLOR,
+    charColor: COLOR_DATA.CHAR_COLOR,
+    bgColor: COLOR_DATA.BG_COLOR,
     mode: TEXTURE_SELECT.MODE
   }
 }
 
 // ASCII TEXTURE AND SHADER STUFF
 let ASCII_TEXTURE_DATA = paintASCIITexture({...returnTexureArgs()})
-const ASCII_SHADER = createASCIIShader(ASCII_TEXTURE_DATA, COLOR_DATA, INVERT_DATA, COLORS.MODE === 'LIGHT BACKGROUND')
+const ASCII_SHADER = createASCIIShader(ASCII_TEXTURE_DATA, COLOR_DATA, COLOR_DATA.INVERT, COLORS.MODE === 'LIGHT BACKGROUND')
 const refreshTextureAndShader = () => {
   console.log(TEXTURE_SELECT.MODE)
   const newTextureData = updateASCIITexture({...returnTexureArgs()})
-  updateShader(ASCII_SHADER, newTextureData, COLOR_DATA, INVERT_DATA, COLORS.MODE === 'LIGHT BACKGROUND')
+  updateShader(ASCII_SHADER, newTextureData, COLOR_DATA, COLOR_DATA.INVERT, COLORS.MODE === 'LIGHT BACKGROUND')
 }
 
 
@@ -84,7 +81,7 @@ const refreshTextureAndShader = () => {
 font.load().then((font) => {
     document.fonts.add(font)
     const newTextureData = updateASCIITexture({...returnTexureArgs()})
-    updateShader(ASCII_SHADER, newTextureData, COLOR_DATA, INVERT_DATA, COLORS.MODE === 'LIGHT BACKGROUND')
+    updateShader(ASCII_SHADER, newTextureData, COLOR_DATA, COLOR_DATA.INVERT, COLORS.MODE === 'LIGHT BACKGROUND')
   });
 
 // CONTROLS UI
@@ -138,31 +135,24 @@ textureMode.add(TEXTURE_SELECT, 'MODE', ['TEXT', 'SHAPE']).onChange(value => {
 
 disableControllersOnModeSwitch(TEXTURE_SELECT.MODE)
 
-const colorController = colorFolder.addColor(COLOR_DATA, 'COLOR').onChange(value => {
+colorFolder.addColor(COLOR_DATA, 'CHAR_COLOR').onChange(value => {
   refreshTextureAndShader()
-})
-colorFolder.add(COLOR_DATA, 'PICK_CHAR_COLOR_FROM_VIDEO').onChange(value => {
-  if(INVERT_DATA.ENABLED) {
-    COLOR_DATA.COLOR = '#000'
-  } else {
-    COLOR_DATA.COLOR = '#FFFFFF'
-  }
+}).listen()
+
+colorFolder.addColor(COLOR_DATA, 'BG_COLOR').onChange(value => {
   refreshTextureAndShader()
-  if (value) {
-    colorController.disable()
-  } else {
-    colorController.enable()
-  }
+}).listen()
+
+colorFolder.add(COLOR_DATA, 'CHAR_TRANSPARENCY', 0,100,1).onChange(value => {
+  refreshTextureAndShader()
 })
 
-colorFolder.add(COLOR_DATA, 'PICK_BG_COLOR_FROM_VIDEO').onChange(value => {
-  COLOR_DATA.COLOR = '#FFFFFF'
+colorFolder.add(COLOR_DATA, 'BACKGROUND_TRANSPARENCY', 0,100,1).onChange(value => {
   refreshTextureAndShader()
-  if (value) {
-    colorController.disable()
-  } else {
-    colorController.enable()
-  }
+})
+
+colorFolder.add(COLOR_DATA, 'INVERT').onChange(value => {
+  refreshTextureAndShader()
 })
 
 outlineFolder.add(OUTLINE_DATA, 'ENABLED').onChange(value => {
@@ -173,14 +163,6 @@ outlineFolder.add(OUTLINE_DATA, 'WIDTH', 1,20,0.5).onChange(value => {
   refreshTextureAndShader()
 })
 
-invertFolder.add(INVERT_DATA, 'ENABLED').onChange(value => {
-  if(value) {
-    COLOR_DATA.COLOR = '#000'
-  } else {
-    COLOR_DATA.COLOR = '#FFF'
-  }
-  refreshTextureAndShader()
-})
 
 colorsFolder.add(COLORS, 'MODE', ["DARK BACKGROUND", "LIGHT BACKGROUND"]).onChange(value => {
   if(value === 'DARK BACKGROUND') {
@@ -194,13 +176,6 @@ colorsFolder.add(COLORS, 'MODE', ["DARK BACKGROUND", "LIGHT BACKGROUND"]).onChan
   refreshTextureAndShader()
 })
 
-colorsFolder.addColor(COLORS, 'CHAR_COLOR').onChange(value => {
-  refreshTextureAndShader()
-}).listen()
-
-colorsFolder.addColor(COLORS, 'BG_COLOR').onChange(value => {
-  refreshTextureAndShader()
-}).listen()
 
 videoFitFolder.add(VIDEO_FIT, 'COVER').onChange(value => {
   handleResize()
