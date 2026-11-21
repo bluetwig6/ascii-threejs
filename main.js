@@ -128,6 +128,12 @@ const disableControllersOnModeSwitch = (mode = null) => {
   }
 }
 
+const invertColors = () => {
+  const temp = COLOR_DATA.CHAR_COLOR
+  COLOR_DATA.CHAR_COLOR = COLOR_DATA.BG_COLOR
+  COLOR_DATA.BG_COLOR = temp
+}
+
 textureMode.add(TEXTURE_SELECT, 'MODE', ['TEXT', 'SHAPE']).onChange(value => {
   refreshTextureAndShader()
   disableControllersOnModeSwitch(value)
@@ -152,6 +158,7 @@ colorFolder.add(COLOR_DATA, 'BACKGROUND_TRANSPARENCY', 0,100,1).onChange(value =
 })
 
 colorFolder.add(COLOR_DATA, 'INVERT').onChange(value => {
+  invertColors()
   refreshTextureAndShader()
 })
 

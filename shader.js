@@ -45,14 +45,12 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT=false, LIGHT_B
       vec2 cellCenter = (floor(uv/u_cellSize) + 0.5 ) * u_cellSize;
       vec4 pixelized = texture(videoFrame, cellCenter/uResolution); // this has the data of the center of current pixel's cell's
 
-      float greyscaled = greyscale(pixelized.rgb).r * 2.0; // give a number between 0 & 1  
+      float greyscaled = greyscale(pixelized.rgb).r; // give a number between 0 & 1  
       float characterIndex;
       float charsPerRow = floor(uResolution.x/u_cellSize.x);
 
       if(u_invert) {
-        characterIndex = u_charCount - characterIndex;
-      } else if(u_light_bg) {
-        characterIndex = floor((u_charCount - 1.0) * (1.0 - greyscaled));
+        characterIndex = u_charCount - 1.0 - floor((u_charCount - 1.0) * greyscaled);
       } else {
         characterIndex = floor((u_charCount - 1.0) * greyscaled);
       }
@@ -71,27 +69,7 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT=false, LIGHT_B
       vec2 charUV = vec2(spaceXPos, spaceYPos); //position of the pixel in asciiimage to be painted in the output
       vec4 asciiCharacter = texture(asciiImage, charUV);
 
-      if(u_light_bg){
         gl_FragColor = asciiCharacter;
-      } else if(u_use_video_color_for_foreground) {
-        gl_FragColor = asciiCharacter * pixelized;
-        if(u_invert) {
-          if(asciiCharacter.r > 0.0) {
-            gl_FragColor = asciiCharacter;
-          } else {
-            gl_FragColor = pixelized;
-          }
-        }
-      } else if(u_PICK_BG_COLOR_FROM_VIDEO) {
-        if(asciiCharacter.r > 0.0) {
-          gl_FragColor = asciiCharacter * pixelized;
-        } else {
-          gl_FragColor = vec4(pixelized.r*0.5,pixelized.g*0.5,pixelized.b*0.5,pixelized.a);
-        }
-      } 
-      else {
-        gl_FragColor = asciiCharacter;
-      }
     }
   `
     })
