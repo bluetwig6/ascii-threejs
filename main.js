@@ -20,9 +20,9 @@ let OUTLINE_DATA = {
 
 let TEXTURE_DATA = {
   STEPS: 20,
-  CELL_SIZE: 22,
+  CELL_SIZE: 10,
   ANGLE: 45,
-  FONT_SIZE: 12
+  FONT_SIZE: 7
 }
 
 let COLOR_DATA = {
@@ -30,8 +30,8 @@ let COLOR_DATA = {
   BACKGROUND_TRANSPARENCY: 0,
   PICK_BG_COLOR_FROM_VIDEO: false,
   INVERT: false,
-  CHAR_COLOR: "#FFFFFF",
-  BG_COLOR: "#000000"
+  CHAR_COLOR: "#5edd86",
+  BG_COLOR: "#414866"
 }
 
 let COLORS = {
