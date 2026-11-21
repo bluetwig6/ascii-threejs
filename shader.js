@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT=false, LIGHT_BG) => {
+const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT=false) => {
     return new THREE.ShaderMaterial({
         uniforms: {
             'videoFrame': { value: null },
@@ -9,8 +9,7 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT=false, LIGHT_B
             'uResolution': { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
             'u_use_video_color_for_foreground': { value: COLOR_DATA.PICK_CHAR_COLOR_FROM_VIDEO },
             'u_PICK_BG_COLOR_FROM_VIDEO': { value: COLOR_DATA.PICK_BG_COLOR_FROM_VIDEO },
-            'u_invert': { value: INVERT},
-            'u_light_bg': { value: LIGHT_BG},
+            'u_invert': { value: INVERT}
         },
         vertexShader: `
     varying vec2 vUv;
@@ -28,7 +27,6 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT=false, LIGHT_B
     uniform bool u_use_video_color_for_foreground;
     uniform bool u_PICK_BG_COLOR_FROM_VIDEO;
     uniform bool u_invert;
-    uniform bool u_light_bg;
 
     vec3 greyscale(vec3 color, float strength) {
         float g = dot(color, vec3(0.299, 0.587, 0.114));
@@ -75,7 +73,7 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT=false, LIGHT_B
     })
 }
 
-const updateShader = (ASCII_SHADER, TEXTURE_DATA, COLOR_DATA, INVERT = false, LIGHT_BG ) => {
+const updateShader = (ASCII_SHADER, TEXTURE_DATA, COLOR_DATA, INVERT = false ) => {
     if (ASCII_SHADER.uniforms.asciiImage.value) {
         ASCII_SHADER.uniforms.asciiImage.value.dispose();
     }
@@ -89,7 +87,6 @@ const updateShader = (ASCII_SHADER, TEXTURE_DATA, COLOR_DATA, INVERT = false, LI
     ASCII_SHADER.uniforms.u_use_video_color_for_foreground.value = COLOR_DATA.PICK_CHAR_COLOR_FROM_VIDEO
     ASCII_SHADER.uniforms.u_PICK_BG_COLOR_FROM_VIDEO.value = COLOR_DATA.PICK_BG_COLOR_FROM_VIDEO;
     ASCII_SHADER.uniforms.u_invert.value = INVERT;
-    ASCII_SHADER.uniforms.u_light_bg.value = LIGHT_BG;
 }
 
 export { createASCIIShader, updateShader }

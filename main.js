@@ -34,10 +34,6 @@ let COLOR_DATA = {
   BG_COLOR: "#414866"
 }
 
-let COLORS = {
-  MODE: "DARK BACKGROUND", // "LIGHT BACKGROUND"
-}
-
 let VIDEO_FIT = {
   COVER: false
 }
@@ -64,11 +60,11 @@ const returnTexureArgs = () => {
 
 // ASCII TEXTURE AND SHADER STUFF
 let ASCII_TEXTURE_DATA = paintASCIITexture({...returnTexureArgs()})
-const ASCII_SHADER = createASCIIShader(ASCII_TEXTURE_DATA, COLOR_DATA, COLOR_DATA.INVERT, COLORS.MODE === 'LIGHT BACKGROUND')
+const ASCII_SHADER = createASCIIShader(ASCII_TEXTURE_DATA, COLOR_DATA, COLOR_DATA.INVERT)
 const refreshTextureAndShader = () => {
   console.log(TEXTURE_SELECT.MODE)
   const newTextureData = updateASCIITexture({...returnTexureArgs()})
-  updateShader(ASCII_SHADER, newTextureData, COLOR_DATA, COLOR_DATA.INVERT, COLORS.MODE === 'LIGHT BACKGROUND')
+  updateShader(ASCII_SHADER, newTextureData, COLOR_DATA, COLOR_DATA.INVERT)
 }
 
 
@@ -81,7 +77,7 @@ const refreshTextureAndShader = () => {
 font.load().then((font) => {
     document.fonts.add(font)
     const newTextureData = updateASCIITexture({...returnTexureArgs()})
-    updateShader(ASCII_SHADER, newTextureData, COLOR_DATA, COLOR_DATA.INVERT, COLORS.MODE === 'LIGHT BACKGROUND')
+    updateShader(ASCII_SHADER, newTextureData, COLOR_DATA, COLOR_DATA.INVERT)
   });
 
 // CONTROLS UI
@@ -90,9 +86,7 @@ const textureMode = controlsGUI.addFolder('TEXTURE MODE')
 const textureDataFolder = controlsGUI.addFolder('TEXTURE_DATA');
 const colorFolder = controlsGUI.addFolder('COLOR')
 const outlineFolder = controlsGUI.addFolder('OUTLINE')
-const invertFolder = controlsGUI.addFolder('INVERT')
 const videoFitFolder = controlsGUI.addFolder('VIDEO FIT')
-const colorsFolder = controlsGUI.addFolder('COLORS')
 
 
 const fontSizeController = textureDataFolder.add(TEXTURE_DATA, 'FONT_SIZE', 1, 100, 1).onChange(value => {
@@ -169,20 +163,6 @@ outlineFolder.add(OUTLINE_DATA, 'ENABLED').onChange(value => {
 outlineFolder.add(OUTLINE_DATA, 'WIDTH', 1,20,0.5).onChange(value => {
   refreshTextureAndShader()
 })
-
-
-colorsFolder.add(COLORS, 'MODE', ["DARK BACKGROUND", "LIGHT BACKGROUND"]).onChange(value => {
-  if(value === 'DARK BACKGROUND') {
-    COLORS.CHAR_COLOR = '#FFF'
-    COLORS.BG_COLOR = '#000'
-  } else {
-    COLORS.CHAR_COLOR = '#000'
-    COLORS.BG_COLOR = '#FFF'
-  }
-  console.log(COLORS)
-  refreshTextureAndShader()
-})
-
 
 videoFitFolder.add(VIDEO_FIT, 'COVER').onChange(value => {
   handleResize()
