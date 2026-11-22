@@ -26,12 +26,11 @@ let TEXTURE_DATA = {
 }
 
 let COLOR_DATA = {
-  CHAR_TRANSPARENCY: 0,
-  BACKGROUND_TRANSPARENCY: 0,
-  PICK_BG_COLOR_FROM_VIDEO: false,
+  CHAR_TRANSPARENCY: 0.0,
+  BACKGROUND_TRANSPARENCY: 0.0,
   INVERT: false,
   CHAR_COLOR: "#5edd86",
-  BG_COLOR: "#414866"
+  BG_COLOR: "#414866",
 }
 
 let VIDEO_FIT = {
@@ -60,11 +59,10 @@ const returnTexureArgs = () => {
 
 // ASCII TEXTURE AND SHADER STUFF
 let ASCII_TEXTURE_DATA = paintASCIITexture({...returnTexureArgs()})
-const ASCII_SHADER = createASCIIShader(ASCII_TEXTURE_DATA, COLOR_DATA, COLOR_DATA.INVERT)
+const ASCII_SHADER = createASCIIShader(ASCII_TEXTURE_DATA, COLOR_DATA)
 const refreshTextureAndShader = () => {
-  console.log(TEXTURE_SELECT.MODE)
   const newTextureData = updateASCIITexture({...returnTexureArgs()})
-  updateShader(ASCII_SHADER, newTextureData, COLOR_DATA, COLOR_DATA.INVERT)
+  updateShader(ASCII_SHADER, newTextureData, COLOR_DATA)
 }
 
 
@@ -77,7 +75,7 @@ const refreshTextureAndShader = () => {
 font.load().then((font) => {
     document.fonts.add(font)
     const newTextureData = updateASCIITexture({...returnTexureArgs()})
-    updateShader(ASCII_SHADER, newTextureData, COLOR_DATA, COLOR_DATA.INVERT)
+    updateShader(ASCII_SHADER, newTextureData, COLOR_DATA)
   });
 
 // CONTROLS UI

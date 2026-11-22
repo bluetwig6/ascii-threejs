@@ -1,5 +1,18 @@
 import * as THREE from 'three';
-const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT=false) => {
+
+const hexToRGBA = (hex) => {
+  const cleanHex = hex.split('#')[1]
+  return( {
+    r: parseInt(cleanHex.slice(0,2), 16)/256,
+    g: parseInt(cleanHex.slice(2,4), 16)/256,
+    b: parseInt(cleanHex.slice(4,6), 16)/256,
+    a: 1.0
+  })
+}
+
+const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA) => {
+  console.log(COLOR_DATA)
+    const rgbaCOLOR = hexToRGBA(COLOR_DATA.CHAR_COLOR)
     return new THREE.ShaderMaterial({
         uniforms: {
             'videoFrame': { value: null },
@@ -7,9 +20,10 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT=false) => {
             'u_charCount': { value: ASCII_TEXTURE_DATA.count },
             'u_cellSize': { value: new THREE.Vector2(ASCII_TEXTURE_DATA.cellSize, ASCII_TEXTURE_DATA.cellSize) },
             'uResolution': { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-            'u_use_video_color_for_foreground': { value: COLOR_DATA.PICK_CHAR_COLOR_FROM_VIDEO },
-            'u_PICK_BG_COLOR_FROM_VIDEO': { value: COLOR_DATA.PICK_BG_COLOR_FROM_VIDEO },
-            'u_invert': { value: INVERT}
+            'u_invert': { value: COLOR_DATA.INVERT},
+            'u_foreground_color': {value: new THREE.Vector4(rgbaCOLOR.r, rgbaCOLOR.g, rgbaCOLOR.b, rgbaCOLOR.a )},
+            'u_char_transparency': {value: COLOR_DATA.CHAR_TRANSPARENCY},
+            'u_background_transparency': {value: COLOR_DATA.BACKGROUND_TRANSPARENCY},
         },
         vertexShader: `
     varying vec2 vUv;
@@ -24,9 +38,10 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT=false) => {
     uniform float u_charCount;
     uniform vec2 u_cellSize; // cellsize eg: (8,8)
     uniform vec2 uResolution; // resolution eg: (1024,1024)
-    uniform bool u_use_video_color_for_foreground;
-    uniform bool u_PICK_BG_COLOR_FROM_VIDEO;
     uniform bool u_invert;
+    uniform vec4 u_foreground_color;
+    uniform float u_char_transparency;
+    uniform float u_background_transparency;
 
     vec3 greyscale(vec3 color, float strength) {
         float g = dot(color, vec3(0.299, 0.587, 0.114));
@@ -67,13 +82,19 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA, INVERT=false) => {
       vec2 charUV = vec2(spaceXPos, spaceYPos); //position of the pixel in asciiimage to be painted in the output
       vec4 asciiCharacter = texture(asciiImage, charUV);
 
-        gl_FragColor = asciiCharacter;
+      // for character trasparency
+      if(all(lessThan(abs(asciiCharacter - u_foreground_color), vec4(0.4)))) {
+        gl_FragColor = mix(asciiCharacter,pixelized,u_char_transparency/100.0);
+      } else {
+        gl_FragColor = mix(asciiCharacter,pixelized, u_background_transparency/100.0);
+      }
     }
   `
     })
 }
 
-const updateShader = (ASCII_SHADER, TEXTURE_DATA, COLOR_DATA, INVERT = false ) => {
+const updateShader = (ASCII_SHADER, TEXTURE_DATA, COLOR_DATA ) => {
+    const rgbaCOLOR = hexToRGBA(COLOR_DATA.CHAR_COLOR)
     if (ASCII_SHADER.uniforms.asciiImage.value) {
         ASCII_SHADER.uniforms.asciiImage.value.dispose();
     }
@@ -84,9 +105,10 @@ const updateShader = (ASCII_SHADER, TEXTURE_DATA, COLOR_DATA, INVERT = false ) =
     );
     ASCII_SHADER.uniforms.uResolution.value = new THREE.Vector2(window.innerWidth, window.innerHeight)
     ASCII_SHADER.uniforms.u_charCount.value = TEXTURE_DATA.count;
-    ASCII_SHADER.uniforms.u_use_video_color_for_foreground.value = COLOR_DATA.PICK_CHAR_COLOR_FROM_VIDEO
-    ASCII_SHADER.uniforms.u_PICK_BG_COLOR_FROM_VIDEO.value = COLOR_DATA.PICK_BG_COLOR_FROM_VIDEO;
-    ASCII_SHADER.uniforms.u_invert.value = INVERT;
+    ASCII_SHADER.uniforms.u_invert.value = COLOR_DATA.INVERT;
+    ASCII_SHADER.uniforms.u_char_transparency.value = COLOR_DATA.CHAR_TRANSPARENCY
+    ASCII_SHADER.uniforms.u_background_transparency.value = COLOR_DATA.BACKGROUND_TRANSPARENCY
+    ASCII_SHADER.uniforms.u_foreground_color.value = new THREE.Vector4(rgbaCOLOR.r, rgbaCOLOR.g, rgbaCOLOR.b, rgbaCOLOR.a )
 }
 
 export { createASCIIShader, updateShader }
