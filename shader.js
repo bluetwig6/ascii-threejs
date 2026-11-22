@@ -11,7 +11,6 @@ const hexToRGBA = (hex) => {
 }
 
 const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA) => {
-  console.log(COLOR_DATA)
     const rgbaCOLOR = hexToRGBA(COLOR_DATA.CHAR_COLOR)
     return new THREE.ShaderMaterial({
         uniforms: {
@@ -24,6 +23,7 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA) => {
             'u_foreground_color': {value: new THREE.Vector4(rgbaCOLOR.r, rgbaCOLOR.g, rgbaCOLOR.b, rgbaCOLOR.a )},
             'u_char_transparency': {value: COLOR_DATA.CHAR_TRANSPARENCY},
             'u_background_transparency': {value: COLOR_DATA.BACKGROUND_TRANSPARENCY},
+            'u_brightness': {value: COLOR_DATA.BRIGHTNESS/100}
         },
         vertexShader: `
     varying vec2 vUv;
@@ -42,6 +42,7 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA) => {
     uniform vec4 u_foreground_color;
     uniform float u_char_transparency;
     uniform float u_background_transparency;
+    uniform float u_brightness;
 
     vec3 greyscale(vec3 color, float strength) {
         float g = dot(color, vec3(0.299, 0.587, 0.114));
@@ -56,9 +57,8 @@ const createASCIIShader = (ASCII_TEXTURE_DATA, COLOR_DATA) => {
       vec2 uv = gl_FragCoord.xy; // current pixel in x,y eg 1000,1000
 
       vec2 cellCenter = (floor(uv/u_cellSize) + 0.5 ) * u_cellSize;
-      vec4 pixelized = texture(videoFrame, cellCenter/uResolution); // this has the data of the center of current pixel's cell's
-
-      float greyscaled = greyscale(pixelized.rgb).r; // give a number between 0 & 1  
+      vec4 pixelized = min(max(texture(videoFrame, cellCenter/uResolution) + vec4(greyscale(vec3(u_brightness)), 0.0), 0.0),1.0); // this has the data of the center of current pixel's cell's
+      float greyscaled = greyscale(pixelized.rgb, 1.0).r; // give a number between 0 & 1  
       float characterIndex;
       float charsPerRow = floor(uResolution.x/u_cellSize.x);
 
@@ -109,6 +109,8 @@ const updateShader = (ASCII_SHADER, TEXTURE_DATA, COLOR_DATA ) => {
     ASCII_SHADER.uniforms.u_char_transparency.value = COLOR_DATA.CHAR_TRANSPARENCY
     ASCII_SHADER.uniforms.u_background_transparency.value = COLOR_DATA.BACKGROUND_TRANSPARENCY
     ASCII_SHADER.uniforms.u_foreground_color.value = new THREE.Vector4(rgbaCOLOR.r, rgbaCOLOR.g, rgbaCOLOR.b, rgbaCOLOR.a )
+    ASCII_SHADER.uniforms.u_brightness.value = COLOR_DATA.BRIGHTNESS/100
+
 }
 
 export { createASCIIShader, updateShader }

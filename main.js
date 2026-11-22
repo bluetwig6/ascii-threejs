@@ -31,6 +31,7 @@ let COLOR_DATA = {
   INVERT: false,
   CHAR_COLOR: "#5edd86",
   BG_COLOR: "#414866",
+  BRIGHTNESS: 0.0
 }
 
 let VIDEO_FIT = {
@@ -151,6 +152,10 @@ colorFolder.add(COLOR_DATA, 'BACKGROUND_TRANSPARENCY', 0,100,1).onChange(value =
 
 colorFolder.add(COLOR_DATA, 'INVERT').onChange(value => {
   invertColors()
+  refreshTextureAndShader()
+})
+
+colorFolder.add(COLOR_DATA, 'BRIGHTNESS', -100,100,1).onChange(value => {
   refreshTextureAndShader()
 })
 
